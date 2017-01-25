@@ -38,7 +38,7 @@ on boot
     chmod 0664 /sys/class/backlight/psb-bl/actual_brightness
 
     #Change mmc queue nr_requests from 128 to 32 to reduce write latencies
-    write /sys/block/mmcblk0/queue/nr_requests 32
+    write /sys/block/mmcblk0/queue/nr_requests 128
 
     #reduce dirty memory size
     write /proc/sys/vm/dirty_background_bytes  5242880
@@ -65,7 +65,7 @@ on post-fs-data
 
 on charger
     # /system is not already mounted under COS
-    mount ext4 /dev/block/mmcblk0p16 /system ro noatime
+    mount ext4 /dev/block/mmcblk0p16 /system rw noatime
     start pvrsrvctl
     # reduce backlight
     write /sys/class/backlight/psb-bl/brightness 50
@@ -93,7 +93,6 @@ service media /system/bin/mediaserver
     class main
     user media
     group system audio camera media_rw sdcard_rw inet net_bt net_bt_admin net_bw_acct drmrpc qcom_diag mediadrm nvram ccci net_raw security mot_tpapi radio mot_drm
-    ioprio rt 4
 
 #Enable Houdini for execuable
 service enable_houdini /system/bin/enable_houdini
@@ -113,7 +112,7 @@ on property:service.adb.root=1
     write /sys/class/android_usb/android0/enable 1
 
 on property:sys.property_forcedshutdown=1
-    write /sys/module/intel_mid_osip/parameters/force_shutdown_occured 1
+    write /sys/module/intel_mid_osip/parameters/force_shutdown_occured 0
 
 on property:sys.shutdown.requested=0
     write /sys/devices/virtual/misc/watchdog/shutdown_ongoing 1
