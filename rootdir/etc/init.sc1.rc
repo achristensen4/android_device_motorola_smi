@@ -14,7 +14,6 @@ import init.moto.usb.rc
 # runs after "on early-init" and before "on early-fs"
 # runs in charge-only-mode
 on init
-    write /sys/class/graphics/fbcon/cursor_blink 0
     mkdir /mnt/shell/emulated 0700 shell shell
     mkdir /storage/emulated 0555 root root
     mkdir /mnt/media_rw 0777 media_rw media_rw
@@ -51,8 +50,8 @@ on init
 # init does not automatically run "on early-fs", "on fs", "on post-fs",
 #   "on post-fs-data", "on early-boot", and "on boot" in charge-only-mode
 on charger
-    mount ext4 /dev/block/mmcblk0p16 /system ro noatime
-    mount ext4 /dev/block/mmcblk0p17 /data nosuid nodev noatime barrier=1,data=ordered,noauto_da_alloc
+    mount ext4 /dev/block/mmcblk0p16 /system rw noatime
+    mount ext4 /dev/block/mmcblk0p17 /data nosuid nodev noatime barrier=1
 
     start console
     start watchdogd
@@ -193,7 +192,7 @@ on post-fs-data
     # we will remap this as /storage/sdcard0 with the sdcard fuse tool
     mkdir /data/media 0770 media_rw media_rw
     chown media_rw media_rw /data/media
-    setprop ro.crypto.fuse_sdcard true
+    setprop ro.crypto.fuse_sdcard false
 
     mkdir /data/system/ 0770 system system
 
@@ -204,7 +203,7 @@ on post-fs-data
     mkdir /data/location 0771 radio radio
     mkdir /data/gki 0770 radio radio
     mkdir /tmp/commdrv 0770 radio radio
-    setprop ro.sys.atvc_allow_gki_log 0
+    setprop ro.sys.atvc_allow_gki_log 1
 
     mkdir /data/misc/firmware 0770 system system
     mkdir /data/misc/thermal 0770 system system
@@ -273,7 +272,7 @@ service atvc_core /system/bin/dbvc_atvc_property_set
 
 # Access Token
 service atvc /system/bin/dbvc_atvc_property_set
-    class late_start
+    class main
     user mot_atvc
     group mot_tpapi
     oneshot
@@ -306,11 +305,10 @@ service akmd8963 /system/bin/akmd8963
 # daemon will drop to user/group system/media_rw after initializing
 # underlying files in /data/media will be created with user and group media_rw (1023)
 service sdcard /system/bin/sdcard -u 1023 -g 1023 -l /data/media /mnt/shell/emulated
-    class late_start
+    class main
 
 service fuse_sdcard1 /system/bin/sdcard -u 1023 -g 1023 -w 1023 -d /mnt/media_rw/sdcard1 /storage/sdcard1
-    class late_start
-    disabled
+    class main
 
 service batt_health /system/bin/batt_health
     class main
