@@ -113,21 +113,17 @@ service bd_prov /system/bin/bd_prov
 
 service dhcpcd_bt-pan /system/bin/dhcpcd -ABKL
     class main
-    disabled
     oneshot
 
 service iprenew_bt-pan /system/bin/dhcpcd -n
     class main
-    disabled
     oneshot
 
 service pcsc /system/bin/pcscd --auto-exit
     class main
     user wifi
     group wifi inet
-    disabled
     oneshot
 
-#on property:persist.radio.airplane_mode_on=0
-#   stop ril-daemon
-#   start ril-daemon
+on property:persist.radio.airplane_mode_on=0
+stop ril-daemon
